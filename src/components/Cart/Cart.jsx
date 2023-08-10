@@ -1,10 +1,12 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import classes from "./Cart.module.css";
 import Modal from "../UI/Modal";
 import cartContext from "../../store/cartContext";
 import CartItem from "./CartItem";
+import Checkout from "./Checkout";
 
 function Cart(props) {
+  const [showOrderForm, setShowOrderForm] = useState(false);
   const cartCtx = useContext(cartContext);
 
   const totalAmount = `Rs ${cartCtx.amount.toFixed(2)}/-`;
@@ -32,6 +34,10 @@ function Cart(props) {
       ))}
     </ul>
   );
+
+  const onOrderClickHandler = ()=>{
+    setShowOrderForm(true)
+  }
   return (
     <Modal onClick={props.onClick}>
       {cartItems}
@@ -39,12 +45,14 @@ function Cart(props) {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      <div className={classes.actions}>
+      
+      {showOrderForm ? <Checkout onCancel={props.onClick}/> : <div className={classes.actions}>
         <button className={classes["button--alt"]} onClick={props.onClick}>
           Close
         </button>
-        {hasItems && <button className={classes.button}>Order</button>}
-      </div>
+        {hasItems && <button className={classes.button} onClick={onOrderClickHandler}>Order</button>}
+      </div>}
+      
     </Modal>
   );
 }
