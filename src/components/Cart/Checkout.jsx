@@ -39,9 +39,16 @@ function Checkout(props) {
             postal: postalIsValid
         })
         
-        if (formIsValid){
+        if (!formIsValid){
             return;
         }
+
+        props.onConfirm({
+            name: enteredName,
+            city: enteredCity,
+            street: enteredStreet,
+            postalCode: enteredPostal,
+        });
     }
   return (
     <form onSubmit={confirmHandler}>
@@ -63,7 +70,7 @@ function Checkout(props) {
       <div className={classes.control}>
         <label htmlFor="city">City</label>
         <input type="text" id="city" ref={cityInputRef} />
-        {!formValidity.city && <p style={{color: 'red'}}>Please enter a valid city</p>}
+        {!formValidity.city && <p style={{color: 'red'}}>Please enter a valid city~</p>}
       </div>
       <div className={classes.actions}>
       <button type="button" onClick={props.onCancel}>Cancel</button>

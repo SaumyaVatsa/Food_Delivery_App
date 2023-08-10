@@ -7,6 +7,8 @@ import Checkout from "./Checkout";
 
 function Cart(props) {
   const [showOrderForm, setShowOrderForm] = useState(false);
+  const [isSubmitting, setIsSubmiting] = useState(false);
+  const [didSubmit, setDidSubmit] = useState(false);
   const cartCtx = useContext(cartContext);
 
   const totalAmount = `Rs ${cartCtx.amount.toFixed(2)}/-`;
@@ -38,21 +40,45 @@ function Cart(props) {
   const onOrderClickHandler = ()=>{
     setShowOrderForm(true)
   }
-  return (
-    <Modal onClick={props.onClick}>
-      {cartItems}
+
+  const submitOrderHandler = async (userData)=>{
+    setIsSubmiting(true);
+    await fetch('https://food-delivery-app-11c4e-default-rtdb.firebaseio.com/order.json', {
+      method: 'POST', 
+      body: JSON.stringify({
+        user: userData,
+        orderedItems: cartCtx.item
+      })
+    })
+    setIsSubmiting(false);
+    setDidSubmit(true);
+    cartCtx.clearItem();
+  }
+
+  const cartModalContent = 
+  <>
+  {cartItems}
       <div className={classes.total}>
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
       
-      {showOrderForm ? <Checkout onCancel={props.onClick}/> : <div className={classes.actions}>
+      {showOrderForm ? <Checkout onConfirm={submitOrderHandler} onCancel={props.onClick}/> : <div className={classes.actions}>
         <button className={classes["button--alt"]} onClick={props.onClick}>
           Close
         </button>
         {hasItems && <button className={classes.button} onClick={onOrderClickHandler}>Order</button>}
       </div>}
-      
+  </>
+
+  const isSubmittingModalContent = <p>Sending Order Data...</p>
+  const didSubmitContent = <p>Successfully sent the content.</p>
+
+  return (
+    <Modal onClick={props.onClick}>
+      {isSubmitting && isSubmittingModalContent}
+      {!isSubmitting && !didSubmit && cartModalContent}
+      {!isSubmitting && didSubmit && didSubmitContent}
     </Modal>
   );
 }
